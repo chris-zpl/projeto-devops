@@ -1,0 +1,56 @@
+AWSTemplateFormatVersion: '2010-09-09' # Versão do formato do template CloudFormation
+
+Parameters:
+  BucketName:
+    Type: String
+    Description: Nome do bucket S3 a ser criado
+    Default: projeto-devops-pucrs-2025
+
+Resources:
+  MeuBucketS3:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Ref BucketName
+      AccessControl: Private # Somente usuários autenticados da conta podem acessar
+
+      PublicAccessBlockConfiguration: # Bloqueia qualquer acesso público
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+
+      VersioningConfiguration:
+        Status: Enabled # Habilita versionamento de objetos
+
+      Tags:
+        - Key: Ambiente
+          Value: Producao
+        - Key: Projeto
+          Value: Fase-1
+        - Key: Owner
+          Value: Christian
+        - Key: StackName
+          Value: !Ref AWS::StackName
+
+  PoliticaRestritivaDevelopers:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: !Ref MeuBucketS3
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Sid: RestrictToAccountUsers
+            Effect: Allow
+            Principal: "*" # Permite qualquer identidade, mas com condição
+            Action: "s3:*"
+            Resource:
+              - !Sub "${MeuBucketS3.Arn}"
+              - !Sub "${MeuBucketS3.Arn}/*"
+            Condition:
+              StringEquals:
+              "aws:PrincipalAccount": !Ref AWS::AccountId # Apenas usuários da mesma conta
+
+Outputs:
+  NomeDoBucket:
+    Description: "Nome do bucket S3"
+    Value: !Ref MeuBucketS3
