@@ -4,7 +4,7 @@
 Bem-vindo(a) ao **Projeto DevOps** da disciplina de Análise e Desenvolvimento de Sistemas na PUCRS!
 
 ## Menu
-- [Sobre o projeto](#sobre-o-projeto)
+- [Sobre](#sobre-o-projeto)
 - [Informações](#informações)
 
 ## Sobre o projeto
