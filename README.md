@@ -9,7 +9,7 @@ Bem-vindo(a) ao **Projeto DevOps** da disciplina de Análise e Desenvolvimento d
 
 ## Sobre o projeto
 
-Este website tem como princípio exibir um **contador regressivo** *(Countdown)* até a data escolhida para o aniversário, permitindo que amigos e familiares informe presentes ou mensagens de forma anônima através do arquivo JSON, que poderão ser visualizados por meio de cards clicáveis.\
+Este projeto tem como princípio exibir um **contador regressivo** *(Countdown)* até a data escolhida para o aniversário, permitindo que amigos e familiares informem presentes ou mensagens de forma anônima através do arquivo JSON, que poderão ser visualizados por meio de cards clicáveis.\
 O projeto usará o `GitHub Actions` para **commits** automáticos e o `AWS S3` para deploy. 
 
 ## Informações
