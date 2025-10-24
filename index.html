@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/x-icon" href="config/img/happy-birthday.png"/>
+    <title>Aniversário</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+    <link rel="stylesheet" href="config/css/style.css">
+</head>
+<body>
+    <div class="container">
+      <div class="countdown">
+        <h1 id="headline">Contagem para o Aniversário</h1>
+          <ul>
+            <li><span id="dias">00</span>Dias</li>
+            <li><span id="horas">00</span>Horas</li>
+            <li><span id="minutos">00</span>Minutos</li>
+            <li><span id="segundos">00</span>Segundos</li>
+          </ul>
+        </div>
+    </div>
+    <script>
+    // Função para pegar as datas do aniversário no arquivo json
+    async function dataAniver() {
+      let diaAniver;
+      let mesAniver;
+      await fetch('./config/json/dataAniversario.json').then((response) => {
+        return response.json();
+      }).then(data => {
+        diaAniver = data.dia;
+        mesAniver = data.mes;
+      })
+      return {diaAniver,mesAniver};
+    }
+
+    // Função caso o aniversário seja bissexto
+    function bissexto(ano){
+      return (ano % 4 === 0 && ano % 100 !== 0) || (ano % 400 === 0);
+    }
+
+    // Função para o contador
+    (async function () {
+      const segundos = 1000,
+          minutos = segundos * 60,
+          horas = minutos * 60,
+          dias = horas * 24;
+  
+      // Esta sessão é para atualizar o aniversário todo ano
+      let hoje = new Date();
+      
+      let yyyy = hoje.getFullYear(),
+          proxAno = yyyy + 1;
+      
+      // Pega as datas do aniversário, como dia e mês
+      let {diaAniver, mesAniver} = await dataAniver();
+
+      diaAniver = parseInt(diaAniver);
+      mesAniver = parseInt(mesAniver);
+
+      // Se não for número válido, define valor padrão '01'
+      if (isNaN(diaAniver)) diaAniver = 1;
+      if (isNaN(mesAniver)) mesAniver = 1;
+
+      let aniversarioAno = yyyy;
+
+      // Se o aniversário for 29/02 e o ano não for bissexto, acha o próximo ano bissexto
+      if(diaAniver === 29 && mesAniver === 2 && !bissexto(aniversarioAno)){
+        do {
+          aniversarioAno++;
+        }while(!bissexto(aniversarioAno));
+      }
+
+      // Monta a data de aniversário
+      let aniversario = new Date(aniversarioAno, mesAniver - 1, diaAniver);
+
+      // Se a data já passou neste ano, usa o próximo
+      if (hoje > aniversario) {
+        aniversarioAno++;
+        if (diaAniver === 29 && mesAniver === 2 && !bissexto(aniversarioAno)) {
+          do {
+            aniversarioAno++;
+          } while (!bissexto(aniversarioAno));
+        }
+        aniversario = new Date(aniversarioAno, mesAniver - 1, diaAniver);
+      }
+      // Fim
+
+      // Cria um localStorage com o valor 'false' para que impeça de acessar a página 'presente.html'
+      localStorage.setItem('terminoContagemRegressiva', 'false');
+
+      // Inicia a contagem
+      const contagemRegressiva = aniversario.getTime();
+
+      const x = setInterval(function() {
+        const agora = new Date().getTime(); 
+        const terminoContagem = contagemRegressiva - agora;
+        document.getElementById("dias").innerText = String(Math.floor(terminoContagem / (dias))).padStart(2, "0"),
+        document.getElementById("horas").innerText = String(Math.floor((terminoContagem % (dias)) / (horas))).padStart(2, "0"),
+        document.getElementById("minutos").innerText = String(Math.floor((terminoContagem % (horas)) / (minutos))).padStart(2, "0"),
+        document.getElementById("segundos").innerText = String(Math.floor((terminoContagem % (minutos)) / segundos)).padStart(2, "0");
+  
+        // Redireciona ao chegar em 0
+        if (terminoContagem < 0) {
+          clearInterval(x);
+          // Ao chegar a 0, troca o valor do localStorage para true e redireciona para o 'presente.html'
+          localStorage.setItem('terminoContagemRegressiva', 'true');
+          document.getElementById("dias").innerText = '00',
+          document.getElementById("horas").innerText = '00',
+          document.getElementById("minutos").innerText = '00',
+          document.getElementById("segundos").innerText = '00';
+          document.location.href = 'presente.html';
+        }
+        //segundos
+      }, 1000)
+    }());
+    </script>
+    <script src="config/js/scripts.js"></script>
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
+</body>
+</html>

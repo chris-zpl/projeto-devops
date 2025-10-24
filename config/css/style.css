@@ -1,0 +1,153 @@
+/* general styling */
+:root {
+	--smaller: .75;
+}
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+html, body {
+
+	margin: 0;
+}
+body {
+  	align-items: center;
+  	background-color: #000000;
+  	font-family: -apple-system, 
+    BlinkMacSystemFont, 
+    "Segoe UI", 
+    Roboto, 
+    Oxygen-Sans, 
+    Ubuntu, 
+    Cantarell, 
+    "Helvetica Neue", 
+    sans-serif;
+}
+.countdown,
+.presentes{
+	position: absolute;
+  	top: 50%;
+  	left: 50%;
+  	transform: translate(-50%, -50%);
+}
+.container,
+.cards {
+	display: flex;
+	justify-content: center;
+	flex-direction: column;
+	color: #ffffff;
+	text-align: center;
+}
+.cards{
+	flex-direction: row;
+}
+h1 {
+	font-weight: normal;
+	letter-spacing: .125rem;
+	text-transform: uppercase;
+}
+#headline{
+	color: #fff;
+}
+li {
+	display: inline-block;
+	/*font-size: 1.5em;*/
+	list-style-type: none;
+	padding: 1em;
+	text-transform: uppercase;
+}
+
+li span {
+	display: block;
+	font-size: 4.5rem;
+}
+
+@media all and (max-width: 768px) {
+	/*h1 {
+		font-size: calc(1.5rem * var(--smaller));
+	}*/
+
+	li {
+		font-size: calc(1.125rem * var(--smaller));
+	}
+
+	li span {
+		font-size: calc(80px * var(--smaller));
+	}
+	.presentes{	
+		display: contents;	
+		margin: auto;
+	}
+	.presentes h1{
+		margin: 40px 0 0;
+	}
+	.cards{
+		width: 100%;
+		flex-direction: column;
+		align-items: center;
+	}
+	.flip-card{
+		max-width: 250px;
+	}
+	#headline{
+		font-size: xx-large;
+		margin: 40px 0 0;
+	}
+}
+
+/* Feliz Aniversário */
+canvas {
+  	position: absolute;
+  	top: 0;
+  	left: 0;
+}
+
+/* Flip Cards para o presente */
+.flip-card {
+	/*transition: box-shadow .3s;*/
+	width: 300px;
+	height: 400px;
+	margin: 50px;
+	border-radius:10px;
+	background: #fff;
+	float: left;
+	transform-style: preserve-3d;
+  	transform-origin: center right;
+  	transition: 1s;
+	cursor: pointer;
+	opacity: 1;
+	
+}
+.flip-card.is-flipped {
+	transform: translateX(-100%) rotateY(-180deg);
+}
+.no-flip {
+    pointer-events: none;
+    opacity: 0.6; /* Opcional: reduzir a opacidade para indicar que o cartão está desativado */
+}
+.front {
+	display: flex;
+	flex-direction: column;
+	flex-wrap: nowrap;
+	justify-content: center;
+	color: black;
+	font-weight: bold;
+	font-size: 40px;
+	backface-visibility: hidden;
+}
+.back{
+	position: relative;
+	font-size: 20px;
+	margin: 20px 10px;
+	transform: rotateY(180deg);
+	backface-visibility: hidden;
+}
+.back p{
+	color: #000000;
+	margin: 100px 0;
+}
+h2{
+	text-transform: uppercase;
+	color: #000000;
+}
