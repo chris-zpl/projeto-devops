@@ -14,13 +14,17 @@ Resources:
       AccessControl: Private # Somente usuários autenticados da conta podem acessar
 
       PublicAccessBlockConfiguration: # Bloqueia qualquer acesso público
-        BlockPublicAcls: true
-        BlockPublicPolicy: true
-        IgnorePublicAcls: true
-        RestrictPublicBuckets: true
+        BlockPublicAcls: false
+        BlockPublicPolicy: false
+        IgnorePublicAcls: false
+        RestrictPublicBuckets: false
 
       VersioningConfiguration:
         Status: Enabled # Habilita versionamento de objetos
+      
+      OwnershipControls:
+        Rules:
+          - ObjectOwnership: BucketOwnerPreferred
 
       Tags:
         - Key: Ambiente
@@ -32,23 +36,18 @@ Resources:
         - Key: StackName
           Value: !Ref AWS::StackName
 
-  PoliticaRestritivaDevelopers:
+  PoliticaLeituraPublica:
     Type: AWS::S3::BucketPolicy
     Properties:
       Bucket: !Ref MeuBucketS3
       PolicyDocument:
         Version: "2012-10-17"
         Statement:
-          - Sid: RestrictToAccountUsers
+          - Sid: LeituraPublica
             Effect: Allow
             Principal: "*" # Permite qualquer identidade, mas com condição
-            Action: "s3:*"
-            Resource:
-              - !Sub "${MeuBucketS3.Arn}"
-              - !Sub "${MeuBucketS3.Arn}/*"
-            Condition:
-              StringEquals: 
-                "aws:PrincipalAccount": !Ref AWS::AccountId # Apenas usuários da mesma conta
+            Action: "s3:GetObject"  # só leitura
+            Resource: !Sub "${MeuBucketS3.Arn}/*"  # objetos dentro do bucket
 
 Outputs:
   NomeDoBucket:
