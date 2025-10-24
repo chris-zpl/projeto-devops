@@ -47,8 +47,8 @@ Resources:
               - !Sub "${MeuBucketS3.Arn}"
               - !Sub "${MeuBucketS3.Arn}/*"
             Condition:
-              StringEquals:
-              "aws:PrincipalAccount": !Ref AWS::AccountId # Apenas usuários da mesma conta
+              StringEquals: 
+                "aws:PrincipalAccount": !Ref AWS::AccountId # Apenas usuários da mesma conta
 
 Outputs:
   NomeDoBucket:
