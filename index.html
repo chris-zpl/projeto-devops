@@ -49,8 +49,8 @@
       // Esta sessão é para atualizar o aniversário todo ano
       let hoje = new Date();
       
-      let yyyy = hoje.getFullYear(),
-          proxAno = yyyy + 1;
+      let ano = hoje.getFullYear(),
+          proxAno = ano + 1;
       
       // Pega as datas do aniversário, como dia e mês
       let {diaAniver, mesAniver} = await dataAniver();
@@ -62,7 +62,7 @@
       if (isNaN(diaAniver)) diaAniver = 1;
       if (isNaN(mesAniver)) mesAniver = 1;
 
-      let aniversarioAno = yyyy;
+      let aniversarioAno = ano;
 
       // Se o aniversário for 29/02 e o ano não for bissexto, acha o próximo ano bissexto
       if(diaAniver === 29 && mesAniver === 2 && !bissexto(aniversarioAno)){
