@@ -1,4 +1,4 @@
-AWSTemplateFormatVersion: '2010-09-09' # Versão do formato do template CloudFormation
+AWSTemplateFormatVersion: '2010-09-09'
 
 Parameters:
   BucketName:
@@ -7,21 +7,22 @@ Parameters:
     Default: projeto-devops-pucrs-2025
 
 Resources:
+  # BUCKET PRINCIPAL (hospeda o site)
   MeuBucketS3:
     Type: AWS::S3::Bucket
     Properties:
       BucketName: !Ref BucketName
-      AccessControl: Private # Somente usuários autenticados da conta podem acessar
+      AccessControl: Private
 
-      PublicAccessBlockConfiguration: # Bloqueia qualquer acesso público
+      PublicAccessBlockConfiguration:
         BlockPublicAcls: false
         BlockPublicPolicy: false
         IgnorePublicAcls: false
         RestrictPublicBuckets: false
 
       VersioningConfiguration:
-        Status: Enabled # Habilita versionamento de objetos
-      
+        Status: Enabled
+
       OwnershipControls:
         Rules:
           - ObjectOwnership: BucketOwnerPreferred
@@ -30,7 +31,7 @@ Resources:
         - Key: Ambiente
           Value: Producao
         - Key: Projeto
-          Value: Fase-1
+          Value: Fase-2
         - Key: Owner
           Value: Christian
         - Key: StackName
@@ -45,11 +46,95 @@ Resources:
         Statement:
           - Sid: LeituraPublica
             Effect: Allow
-            Principal: "*" # Permite qualquer identidade, mas com condição
-            Action: "s3:GetObject"  # só leitura
-            Resource: !Sub "${MeuBucketS3.Arn}/*"  # objetos dentro do bucket
+            Principal: "*"
+            Action: "s3:GetObject"
+            Resource: !Sub "${MeuBucketS3.Arn}/*"
+
+  # BUCKET DE LOGS (onde serão armazenados os logs de acesso do S3)
+  BucketLogs:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Sub "${BucketName}-logs"
+      AccessControl: LogDeliveryWrite
+      OwnershipControls:
+        Rules:
+          - ObjectOwnership: BucketOwnerPreferred
+
+  # CLOUDWATCH LOG GROUP (para visualizar logs no CloudWatch)
+  CloudWatchLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub "/aws/s3/${BucketName}"
+      RetentionInDays: 14  # guarda logs por 14 dias
+
+  # ROLE para permitir CloudTrail enviar logs ao CloudWatch
+  CloudWatchLogsRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: cloudtrail.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: CloudTrailToCloudWatch
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - logs:PutLogEvents
+                  - logs:CreateLogStream
+                Resource: !GetAtt CloudWatchLogGroup.Arn
+
+  # CLOUDTRAIL (audita eventos do S3)
+  CloudTrailS3:
+    Type: AWS::CloudTrail::Trail
+    Properties:
+      TrailName: !Sub "${BucketName}-trail"
+      S3BucketName: !Ref BucketLogs
+      IsLogging: true
+      IncludeGlobalServiceEvents: true
+      IsMultiRegionTrail: false
+      EnableLogFileValidation: true
+      CloudWatchLogsLogGroupArn: !GetAtt CloudWatchLogGroup.Arn
+      CloudWatchLogsRoleArn: !GetAtt CloudWatchLogsRole.Arn
+      EventSelectors:
+        - ReadWriteType: All
+          IncludeManagementEvents: true
+          DataResources:
+            - Type: AWS::S3::Object
+              Values:
+                - !Sub "arn:aws:s3:::${BucketName}/"
+
+  # ALARME DE ERROS 4xx (404, 403, etc.)
+  AlarmeErros4xx:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName: !Sub "Erros4xx-${BucketName}"
+      AlarmDescription: "Dispara quando ocorrem erros 4xx no bucket S3"
+      Namespace: AWS/S3
+      MetricName: 4xxErrors
+      Dimensions:
+        - Name: BucketName
+          Value: !Ref BucketName
+        - Name: StorageType
+          Value: AllStorageTypes
+      Statistic: Sum
+      Period: 300  # 5 minutos
+      EvaluationPeriods: 1
+      Threshold: 5  # mais de 5 erros em 5 min
+      ComparisonOperator: GreaterThanOrEqualToThreshold
+      TreatMissingData: notBreaching
+      AlarmActions: []  # opcional: SNS topic
 
 Outputs:
   NomeDoBucket:
-    Description: "Nome do bucket S3"
+    Description: "Nome do bucket S3 principal"
     Value: !Ref MeuBucketS3
+
+  LogGroupName:
+    Description: "Nome do grupo de logs do CloudWatch"
+    Value: !Ref CloudWatchLogGroup
