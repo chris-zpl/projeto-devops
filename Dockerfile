@@ -20,4 +20,6 @@ CMD aws s3 sync . s3://$S3_BUCKET/ \
     --exclude ".git/*" \
     --exclude ".github/*" \
     --exclude "Dockerfile" \
+    --exclude "docker-compose.yml" \
+    --exclude "s3-cloudform.yml" \
     --delete --exact-timestamps
