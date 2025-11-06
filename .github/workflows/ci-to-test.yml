@@ -1,0 +1,36 @@
+name: CI para testes automatizados
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  # Integração Contínua (CI)
+  
+  ci:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout do código
+        uses: actions/checkout@v4
+
+      # Lint HTML
+      - name: Instalar HTMLHint
+        run: npm install -g htmlhint
+
+      - name: Verificar HTML
+        run: htmlhint "**/*.html" || true  # não falha o pipeline, apenas alerta
+
+      # Lint CSS
+      - name: Instalar Stylelint
+        run: npm install -g stylelint stylelint-config-standard
+
+      - name: Verificar CSS
+        run: stylelint "**/*.css" || true
+
+      # Lint JS
+      - name: Instalar ESLint
+        run: npm install -g eslint
+
+      - name: Verificar JS
+        run: eslint "**/*.js" || true
